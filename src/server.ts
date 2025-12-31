@@ -50,8 +50,25 @@ app.get('/', (req: Request, res: Response) => {
   res.send('Hello World! tawhid here');
 });
 
-app.post('/', (req: Request, res: Response) => {
-  console.log(req.body);
+app.post('/users', async (req: Request, res: Response) => {
+  const { name, email } = req.body;
+  try {
+    const result = await pool.query(
+      `INSERT INTO users(name, email) VALUES($1, $2) RETURNING *`,
+      [name, email]
+    );
+
+    res.send({
+      success: true,
+      data: result.rows[0],
+    });
+  } catch (err: any) {
+    return res.status(500).json({
+      succces: false,
+      message: err.message,
+    });
+  }
+
   res.status(201).json({
     succcess: true,
     message: 'Data received successfully',

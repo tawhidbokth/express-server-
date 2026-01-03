@@ -14,8 +14,8 @@ const initDB = async () => {
      age INT, 
      phone VARCHAR(15), 
      address TEXT, 
-      created_at TIMESTAMP DEFAULT NOW(),
-      updated_at TIMESTAMP DEFAULT NOW()
+     created_at TIMESTAMP DEFAULT NOW(),
+     updated_at TIMESTAMP DEFAULT NOW()
   )
 `);
 

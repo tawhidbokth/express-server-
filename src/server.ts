@@ -1,6 +1,8 @@
 import express, { Request, Response } from 'express';
 import config from './config';
 import initDB, { pool } from './config/db';
+import logger from './middleware/logger';
+import { userRoutes } from './modules/user/user.routes';
 
 const app = express();
 const port = config.port;
@@ -9,58 +11,15 @@ app.use(express.json());
 // app.use(express.urlencoded({ extended: true }));
 
 // database connection
-
 initDB();
 
-const loggerMiddleware = (req: Request, res: Response, next: Function) => {
-  console.log(`${req.method} ${req.path} - ${new Date().toISOString()}`);
-  next();
-};
-
-app.get('/', loggerMiddleware, (req: Request, res: Response) => {
+app.get('/', logger, (req: Request, res: Response) => {
   res.send('Hello World! tawhid here');
 });
 
 // Create a new user
 
-app.post('/users', async (req: Request, res: Response) => {
-  const { name, email } = req.body;
-  try {
-    const result = await pool.query(
-      `INSERT INTO users(name, email) VALUES($1, $2) RETURNING *`,
-      [name, email]
-    );
-
-    res.send({
-      success: true,
-      data: result.rows[0],
-    });
-  } catch (err: any) {
-    res.status(500).json({
-      succces: false,
-      message: err.message,
-    });
-  }
-});
-
-// Get all users
-app.get('/users', async (req: Request, res: Response) => {
-  try {
-    const result = await pool.query(`SELECT * FROM users`);
-
-    res.status(200).json({
-      success: true,
-      message: 'user succsesfully reseved',
-      data: result.rows,
-    });
-  } catch (err: any) {
-    res.status(500).json({
-      success: false,
-      message: err.message,
-      details: err,
-    });
-  }
-});
+app.use('/users', userRoutes);
 
 // Get a single user by ID
 app.get('/users/:id', async (req: Request, res: Response) => {

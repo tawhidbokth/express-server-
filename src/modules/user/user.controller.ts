@@ -2,9 +2,8 @@ import { Request, Response } from 'express';
 import { userservices } from './user.service';
 
 const createUser = async (req: Request, res: Response) => {
-  const { name, email } = req.body;
   try {
-    const result = await userservices.createUser(name, email);
+    const result = await userservices.createUser(req.body);
 
     res.send({
       success: true,

@@ -3,6 +3,7 @@ import config from './config';
 import initDB, { pool } from './config/db';
 import logger from './middleware/logger';
 import { userRoutes } from './modules/user/user.routes';
+import { userservices } from './modules/user/user.service';
 
 const app = express();
 const port = config.port;
@@ -17,110 +18,11 @@ app.get('/', logger, (req: Request, res: Response) => {
   res.send('Hello World! tawhid here');
 });
 
-// Create a new user
+// user routes
 
 app.use('/users', userRoutes);
 
-// Get a single user by ID
-app.get('/users/:id', async (req: Request, res: Response) => {
-  // console.log(req.params.id);
-  // res.send({
-  //   message: 'API is cool',
-  // });
-
-  try {
-    const result = await pool.query(`SELECT * FROM users WHERE id = $1`, [
-      req.params.id,
-    ]);
-    console.log(result.rows);
-
-    if (result.rows.length === 0) {
-      res.status(404).json({
-        success: false,
-        message: 'user not found',
-      });
-    } else {
-      res.status(200).json({
-        success: true,
-        message: 'user succsesfully',
-        data: result.rows[0],
-      });
-    }
-  } catch (err: any) {
-    res.status(500).json({
-      success: false,
-      message: err.message,
-    });
-  }
-});
-
-// update user single by id
-
-app.put('/users/:id', async (req: Request, res: Response) => {
-  // console.log(req.params.id);
-  // res.send({
-  //   message: 'API is cool',
-  // });
-
-  const { name, email } = req.body;
-
-  try {
-    const result = await pool.query(
-      `UPDATE users SET name=$1, email=$2 WHERE id=$3 RETURNING * `,
-      [name, email, req.params.id]
-    );
-    console.log(result.rows);
-
-    if (result.rows.length === 0) {
-      res.status(404).json({
-        success: false,
-        message: 'user not found',
-      });
-    } else {
-      res.status(200).json({
-        success: true,
-        message: 'user update succsesfully',
-        data: result.rows[0],
-      });
-    }
-  } catch (err: any) {
-    res.status(500).json({
-      success: false,
-      message: err.message,
-    });
-  }
-});
-
-// delet user
-
-app.delete('/users/:id', async (req: Request, res: Response) => {
-  // console.log(req.params.id);
-  try {
-    const result = await pool.query(`DELETE FROM users WHERE id = $1`, [
-      req.params.id,
-    ]);
-
-    if (result.rowCount === 0) {
-      res.status(404).json({
-        success: false,
-        message: 'User not found',
-      });
-    } else {
-      res.status(200).json({
-        success: true,
-        message: 'User deleted successfully',
-        data: result.rows,
-      });
-    }
-  } catch (err: any) {
-    res.status(500).json({
-      success: false,
-      message: err.message,
-    });
-  }
-});
-
-// crate a todos
+// todo routes
 
 app.post('/todos', async (req: Request, res: Response) => {
   const { user_id, titel } = req.body;
